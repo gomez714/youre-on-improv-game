@@ -1,0 +1,8 @@
+.gradientButton {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gradientButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 200, 100, 0.4);
+}
