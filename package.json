@@ -25,6 +25,8 @@
     "@next/bundle-analyzer": "^15.2.3",
     "@tabler/icons-react": "^3.31.0",
     "firebase": "^11.6.0",
+    "framer-motion": "^12.6.3",
+    "motion": "^12.6.3",
     "next": "15.2.3",
     "react": "19.0.0",
     "react-dom": "19.0.0"

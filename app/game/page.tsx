@@ -1,82 +1,144 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Card, Container, Stack, Text, Title } from '@mantine/core';
-
-type GameMode = {
-  title: string;
-  description: string;
-  examplePrompt: string;
-};
-
-const GAME_MODES: GameMode[] = [
-  {
-    title: '🎭 Role Roulette',
-    description: 'Become a ridiculous character in a bizarre situation.',
-    examplePrompt: "You are a deeply insecure pirate giving a TED Talk on leadership — in a Chuck E. Cheese.",
-  },
-  {
-    title: '🔊 Make Some Noise',
-    description: 'No words. Just weird, glorious sounds.',
-    examplePrompt: "Make the sound of a haunted vending machine begging for release.",
-  },
-  {
-    title: '📣 Unlikely PSA',
-    description: 'Deliver a serious PSA about something totally absurd.',
-    examplePrompt: "The dangers of letting raccoons invest in cryptocurrency.",
-  },
-  {
-    title: '🎤 Tagline Takeover',
-    description: 'Sell a terrible product like it’s the next big thing.',
-    examplePrompt: "Introducing: Fork 2.0 — now with zero prongs.",
-  },
-  {
-    title: '🕵️ Lie Detector',
-    description: 'Convince us something fake is 100% true.',
-    examplePrompt: "You invented elbows.",
-  },
-  {
-    title: '📺 Reboot It',
-    description: 'Pitch the worst reboot of a beloved pop culture thing.',
-    examplePrompt: "Reboot Beanie Babies as an emo boy band trying to save their failing tour.",
-  },
-];
+import { Button, Card, Container, Flex, Stack, Text, Title } from '@mantine/core';
+import {motion, AnimatePresence} from 'framer-motion';
+import { prompts, Prompt } from '@/data/prompts';
+import { promptModeLabels } from '@/constants/promptMap';
 
 export default function GamePage() {
-  const [currentMode, setCurrentMode] = useState<GameMode | null>(null);
+  const [prompt, setPrompt] = useState<Prompt | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
 
-  const generateRandomPrompt = () => {
-    const random = GAME_MODES[Math.floor(Math.random() * GAME_MODES.length)];
-    setCurrentMode(random);
+  const getRandomPrompt = (): Prompt => {
+    const randomIndex = Math.floor(Math.random() * prompts.length);
+    return prompts[randomIndex];
+  };
+
+  const handleNextPrompt = () => {
+    if (!hasStarted) setHasStarted(true); 
+    
+    setPrompt(null); 
+
+    setTimeout(() => {
+      setPrompt(getRandomPrompt());
+    }, 350); 
   };
 
   return (
-    <Container size="sm" py="xl">
-      <Stack gap="xl" align="center">
-        <Title order={1} ta="center">
-          You’re On 🎤
-        </Title>
+    <Flex justify="center" align="center" h="100vh">
 
-        {currentMode ? (
-          <Card withBorder shadow="md" radius="md" p="lg" w="100%">
-            <Title order={3}>{currentMode.title}</Title>
-            <Text c="dimmed" mt="xs" size="sm">
-              {currentMode.description}
-            </Text>
-            <Text mt="lg" size="xl" fw={600}>
-              {currentMode.examplePrompt}
-            </Text>
-          </Card>
-        ) : (
-          <Text c="dimmed" ta="center">
-            Ready for your first prompt?
-          </Text>
-        )}
+      <Container size="sm" py="xl">
+        <Stack gap="xl" align="center">
+          <Title order={1} ta="center">
+            You’re On 🎤
+          </Title>
 
-        <Button size="lg" color="grape" radius="xl" onClick={generateRandomPrompt}>
-          {currentMode ? 'New Prompt' : 'Start'}
-        </Button>
-      </Stack>
-    </Container>
+          <div style={{ minHeight: 350, width: '100%' }}>
+
+            <AnimatePresence>
+              { prompt &&(
+                <motion.div
+                  key={prompt.text}
+                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30,
+                    },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.8,
+                    transition: { duration: 0.3, ease: 'easeInOut' },
+                  }}
+                >
+                  <Card
+                    withBorder
+                    shadow="lg"
+                    radius="xl"
+                    p="xl"
+                    w="100%"
+                    style={{
+                      background: 'linear-gradient(145deg, #fff, #f8f0ff)',
+                      border: '2px solid #e0d3fa',
+                      boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)',
+                    }}
+                  >
+                    <Stack gap="md">
+                      <Title
+                        order={2}
+                        ta="center"
+                        c="grape.7"
+                        style={{
+                          fontFamily: "'Comic Neue', sans-serif",
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                        }}
+                      >
+                        {promptModeLabels[prompt.mode]}
+                      </Title>
+
+                      <Text
+                        mt="lg"
+                        size="xl"
+                        fw={700}
+                        ta="center"
+                        style={{
+                          fontSize: '1.75rem',
+                          lineHeight: 1.5,
+                          color: '#1A1B1E',
+                        }}
+                      >
+                        {prompt.text}
+                      </Text>
+                    </Stack>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          
+          
+
+          {!hasStarted && (
+            <Text
+              ta="center"
+              size="lg"
+              fw={600}
+              style={{
+                fontSize: '1.5rem',
+                color: '#6E56CF',
+                fontStyle: 'italic',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+              }}
+            >
+              Ready for your first prompt?
+            </Text>
+          )}
+          
+          <Button
+            size="lg"
+            radius="xl"
+            onClick={handleNextPrompt}
+            variant="gradient"
+            gradient={{ from: 'grape', to: 'violet', deg: 135 }}
+            style={{
+              paddingInline: '2rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+            }}
+          >
+            {hasStarted ? 'Next Prompt' : 'Start'}
+          </Button>
+        </Stack>
+      </Container>
+    </Flex>
   );
 }
